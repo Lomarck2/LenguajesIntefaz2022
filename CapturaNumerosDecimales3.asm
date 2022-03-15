@@ -13,11 +13,12 @@ imprimirCad MACRO mensaje
 ENDM
 
 .MODEL SMALL ;Modelo de memoria del programa
-.STACK       ;Segmento de Pila     
+.STACK 100h  ;Segmento de Pila     
 .DATA        ;Segmento de Datos
     mensaje1 DB 'Introduce un numero: $'
     mensajeError DB 'No es numero base 10$'
-    cadena DB 6 DUP('$') 
+    cadena DB 6 DUP('$')      
+    inversa DB 6 DUP('$')
 .CODE        ;Segmento de Codigo 
 PROGRAMA:    ;Etiqueta principal del programa    
     ;Rutina de arranque
@@ -41,6 +42,23 @@ PROGRAMA:    ;Etiqueta principal del programa
     @finCicloC:
     MOV Cadena[SI],'$' ;Se agrega $ para finalizar la cadena
     imprimirLN
+    PUSH SI
+    MOV CX,SI
+    XOR DI,DI
+    @cicloInversa:
+        MOV BX, CX
+        DEC BX
+        MOV DL,Cadena[BX]
+        MOV inversa[DI],DL
+        INC DI
+    LOOP  @cicloInversa
+    
+    
+    ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   
+    @FINP: ;Rutina de Cierre de Programa, devuelve el control a DOS
+        MOV AH,4Ch
+        INT 21h
+            
     ;FUNCIONES o PROCEDIMIENTOS **************************************************
     @BCD PROC ;Recibe en AL el ASCII decimal y regresa en AL el valor decimal
         CMP AL,39h        ;Se Compara AL con 39h
@@ -57,9 +75,4 @@ PROGRAMA:    ;Etiqueta principal del programa
            imprimirCad mensajeError 
            JMP @FINP
     ENDP
-    
-    ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   
-    @FINP: ;Rutina de Cierre de Programa, devuelve el control a DOS
-        MOV AH,4Ch
-        INT 21h
 ENDP  
